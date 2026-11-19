@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NotifDeviceConfig>
+  <Uri>https://rapidscada.net/store/api/modules/search</Uri>
+  <Method>Get</Method>
+  <Headers>
+    <Header name="Accept" value="application/json" />
+  </Headers>
+  <Content />
+  <ContentType />
+  <ContentEscaping>None</ContentEscaping>
+  <ParamEnabled>true</ParamEnabled>
+  <ParamBegin>@{</ParamBegin>
+  <ParamEnd>}</ParamEnd>
+  <AddrSep>;</AddrSep>
+</NotifDeviceConfig>

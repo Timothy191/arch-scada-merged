@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <RootNamespace>Scada.Comm.Drivers.DrvHttpNotif.Logic</RootNamespace>
+    <Authors>Mikhail Shiryaev</Authors>
+    <Company>Rapid Software LLC</Company>
+    <Product>Rapid SCADA</Product>
+    <Copyright>Copyright © 2026</Copyright>
+    <Version>6.0.1</Version>
+    <AssemblyVersion>6.0.1.0</AssemblyVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\ScadaCommon\ScadaCommon\ScadaCommon.csproj" />
+    <ProjectReference Include="..\..\..\ScadaCommon\ScadaCommon.Log\ScadaCommon.Log.csproj" />
+    <ProjectReference Include="..\..\ScadaComm\ScadaCommCommon\ScadaCommCommon.csproj" />
+    <ProjectReference Include="..\AddressBook\AddressBook.csproj" />
+  </ItemGroup>
+
+  <Import Project="..\DrvHttpNotif.Shared\DrvHttpNotif.Shared.projitems" Label="Shared" />
+
+</Project>

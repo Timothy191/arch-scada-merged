@@ -1,0 +1,164 @@
+﻿// Copyright (c) Rapid Software LLC. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using Scada.Comm.Devices;
+using System.Xml;
+
+namespace Scada.Comm.Drivers.DrvHttpNotif.Config
+{
+    /// <summary>
+    /// Represents a device configuration.
+    /// <para>Представляет конфигурацию КП.</para>
+    /// </summary>
+    internal class NotifDeviceConfig : DeviceConfigBase
+    {
+        /// <summary>
+        /// The default symbol that marks the beginning of a parameter.
+        /// </summary>
+        private const string DefaultParamBegin = "@{";
+        /// <summary>
+        /// The default symbol that marks the end of a parameter.
+        /// </summary>
+        private const string DefaultParamEnd = "}";
+        /// <summary>
+        /// The default address separator.
+        /// </summary>
+        private const string DefaultAddrSep = ";";
+
+
+
+        /// <summary>
+        /// Gets or sets the request URI.
+        /// </summary>
+        public string Uri { get; set; }
+
+        /// <summary>
+        /// Gets or sets the request HTTP method.
+        /// </summary>
+        public RequestMethod Method { get; set; }
+
+        /// <summary>
+        /// Gets the request headers.
+        /// </summary>
+        public List<Header> Headers { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the contents of the HTTP message.
+        /// </summary>
+        public string Content { get; set; }
+
+        /// <summary>
+        /// Gets or sets the content type.
+        /// </summary>
+        public string ContentType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the escaping method for content parameters.
+        /// </summary>
+        public EscapingMethod ContentEscaping { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether URI and content can include parameters.
+        /// </summary>
+        public bool ParamEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets the character that marks the beginning of a parameter.
+        /// </summary>
+        public string ParamBegin { get; set; }
+
+        /// <summary>
+        /// Gets or sets the character that marks the end of a parameter.
+        /// </summary>
+        public string ParamEnd { get; set; }
+
+        /// <summary>
+        /// Gets or sets the string that separates multiple phone numbers and email addresses.
+        /// </summary>
+        public string AddrSep { get; set; }
+
+
+        /// <summary>
+        /// Sets the default values.
+        /// </summary>
+        protected override void SetToDefault()
+        {
+            Uri = "";
+            Method = RequestMethod.Get;
+            Headers = [];
+            Content = "";
+            ContentType = "";
+            ContentEscaping = EscapingMethod.None;
+            ParamEnabled = true;
+            ParamBegin = DefaultParamBegin;
+            ParamEnd = DefaultParamEnd;
+            AddrSep = DefaultAddrSep;
+        }
+
+        /// <summary>
+        /// Loads the configuration from the XML document.
+        /// </summary>
+        protected override void LoadFromXml(XmlDocument xmlDoc)
+        {
+            XmlElement rootElem = xmlDoc.DocumentElement;
+            Uri = rootElem.GetChildAsString("Uri");
+            Method = rootElem.GetChildAsEnum("Method", RequestMethod.Get);
+
+            if (rootElem.SelectSingleNode("Headers") is XmlNode headersNode)
+            {
+                foreach (XmlElement headerElem in headersNode.SelectNodes("Header"))
+                {
+                    Headers.Add(new Header
+                    {
+                        Name = headerElem.GetAttrAsString("name"),
+                        Value = headerElem.GetAttrAsString("value")
+                    });
+                }
+            }
+
+            Content = rootElem.GetChildAsString("Content");
+            ContentType = rootElem.GetChildAsString("ContentType");
+            ContentEscaping = rootElem.GetChildAsEnum("ContentEscaping", EscapingMethod.None);
+            ParamEnabled = rootElem.GetChildAsBool("ParamEnabled", true);
+            ParamBegin = rootElem.GetChildAsString("ParamBegin", ParamBegin);
+            ParamEnd = rootElem.GetChildAsString("ParamEnd", ParamEnd);
+            AddrSep = rootElem.GetChildAsString("AddrSep", AddrSep);
+        }
+
+        /// <summary>
+        /// Saves the configuration into the XML document.
+        /// </summary>
+        protected override void SaveToXml(XmlDocument xmlDoc)
+        {
+            XmlElement rootElem = xmlDoc.CreateElement("NotifDeviceConfig");
+            xmlDoc.AppendChild(rootElem);
+
+            rootElem.AppendElem("Uri", Uri);
+            rootElem.AppendElem("Method", Method);
+            XmlElement headersElem = rootElem.AppendElem("Headers");
+
+            foreach (Header header in Headers)
+            {
+                XmlElement headerElem = headersElem.AppendElem("Header");
+                headerElem.SetAttribute("name", header.Name);
+                headerElem.SetAttribute("value", header.Value);
+            }
+
+            rootElem.AppendElem("Content", Content);
+            rootElem.AppendElem("ContentType", ContentType);
+            rootElem.AppendElem("ContentEscaping", ContentEscaping);
+            rootElem.AppendElem("ParamEnabled", ParamEnabled);
+            rootElem.AppendElem("ParamBegin", ParamBegin);
+            rootElem.AppendElem("ParamEnd", ParamEnd);
+            rootElem.AppendElem("AddrSep", AddrSep);
+        }
+
+        /// <summary>
+        /// Gets the short name of the device configuration file.
+        /// </summary>
+        public static string GetFileName(int deviceNum)
+        {
+            return GetFileName(DriverUtils.DriverCode, deviceNum);
+        }
+    }
+}
