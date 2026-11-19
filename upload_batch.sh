@@ -4,14 +4,18 @@ cd /tmp/arch-scada-merged-upload
 git config user.email "tim@plant.local"
 git config user.name "Tim"
 
-# Get all files from our master into a temp file (using local-master remote in THIS repo)
+# Get the starting point - how many files already committed
+ALREADY=$(git ls-tree -r --name-only HEAD | wc -l)
+echo "Already committed: $ALREADY files"
+
+# Get all files from our master
 git ls-tree -r --name-only local-master/master > /tmp/all_files.txt
 TOTAL=$(wc -l < /tmp/all_files.txt)
 echo "Total files to upload: $TOTAL"
 
-BATCH_SIZE=30
+BATCH_SIZE=100
 BATCH_NUM=0
-START=1
+START=$((ALREADY + 1))
 
 while [ $START -le $TOTAL ]; do
   END=$((START + BATCH_SIZE - 1))
@@ -23,10 +27,8 @@ while [ $START -le $TOTAL ]; do
   COUNT=$((END - START + 1))
   echo "=== Batch $BATCH_NUM: lines $START-$END ($COUNT files) ==="
   
-  # Get the files for this batch
   BATCH_FILES=$(sed -n "${START},${END}p" /tmp/all_files.txt)
   
-  # Checkout files from local-master/master
   echo "$BATCH_FILES" | xargs git checkout local-master/master -- 2>&1 | grep -v "^$" | head -5
   
   git add -A
@@ -40,7 +42,7 @@ while [ $START -le $TOTAL ]; do
   echo "Committed batch $BATCH_NUM"
   
   echo "Pushing batch $BATCH_NUM..."
-  git push origin main 2>&1 | tail -5
+  git push origin main 2>&1 | tail -3
   
   START=$((END + 1))
   sleep 1
